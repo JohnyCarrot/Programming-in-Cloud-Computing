@@ -21,4 +21,8 @@ from debts import views as debts_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', debts_views.index, name='index'),
+    path('create', debts_views.debtor_create, name='create'),
+    path("update/<int:pk>/", debts_views.debtor_update, name="update"),
+    path("delete/<int:pk>/", debts_views.debtor_delete, name="delete"),
+    path("toggle/<int:pk>/", debts_views.debtor_toggle_paid, name="toggle_paid"),
 ]
