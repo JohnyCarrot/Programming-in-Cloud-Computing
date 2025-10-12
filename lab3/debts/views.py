@@ -30,7 +30,7 @@ def debtor_create(request):
     form = DebtorForm(request.POST)
     if form.is_valid():
         form.save()
-        messages.success(request, "Debtor created.")
+        messages.success(request, "Debt created.")
     else:
         add_form_errors_to_messages(request, form)
     return redirect("index")
@@ -43,7 +43,7 @@ def debtor_update(request, pk):
     form = DebtorForm(request.POST, instance=debtor)
     if form.is_valid():
         form.save()
-        messages.success(request, "Debtor updated.")
+        messages.success(request, "Debt updated.")
     else:
         add_form_errors_to_messages(request, form)
     return redirect("index")
