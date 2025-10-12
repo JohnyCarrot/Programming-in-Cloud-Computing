@@ -63,3 +63,9 @@ def debtor_toggle_paid(request, pk):
         debtor.save()
         messages.success(request, f'Dept of {debtor.name} marked as {"paid" if debtor.is_paid else "unpaid"}.')
     return redirect("index")
+
+def run_migrations(request):
+    from django.http import HttpResponse
+    from django.core.management import call_command
+    call_command("migrate", interactive=False)
+    return HttpResponse("Migrácie boli spustené.")
