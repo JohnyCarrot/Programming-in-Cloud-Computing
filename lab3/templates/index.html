@@ -52,6 +52,12 @@
           </div>
 
           <div class="card-body d-flex gap-2">
+                      <button type="button"
+                    class="btn btn-outline-warning"
+                    data-bs-toggle="modal"
+                    data-bs-target="#readDebtorModal{{ dept.pk }}">
+              Read
+            </button>
             <button type="button"
                     class="btn btn-outline-primary"
                     data-bs-toggle="modal"
@@ -95,6 +101,83 @@
           </div>
         </div>
       </div>
+            <!-- Read -->
+      <div class="modal fade" id="readDebtorModal{{ dept.pk }}" tabindex="-1"
+           aria-labelledby="readDebtorLabel{{ dept.pk }}" aria-hidden="true"
+           data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editDebtorLabel{{ dept.pk }}">Read: {{ dept.name }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+              <div class="modal-body">
+<ul class="list-group list-group-flush">
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Name</div>
+      <div>{{ dept.name }}</div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Amount</div>
+      <div>{{ dept.amount }} €</div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Start Date</div>
+      <div>{{ dept.start_date|date:"M d, Y" }}</div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Due Date</div>
+      <div>{{ dept.due_date|date:"M d, Y" }}</div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Email</div>
+      <div>
+        {% if dept.email %}
+          <a href="mailto:{{ dept.email }}">{{ dept.email }}</a>
+        {% else %}
+          <span class="text-muted">—</span>
+        {% endif %}
+      </div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Status</div>
+      <div>
+        <span class="badge {% if dept.is_paid %}bg-success{% else %}bg-danger{% endif %}">
+          {% if dept.is_paid %}Paid{% else %}Unpaid{% endif %}
+        </span>
+      </div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Category</div>
+      <div>
+        {% if dept.category %}
+          <span class="badge bg-secondary">{{ dept.category }}</span>
+        {% else %}
+          <span class="text-muted">—</span>
+        {% endif %}
+      </div>
+    </li>
+
+    {% if dept.note %}
+    <li class="list-group-item">
+      <div class="fw-semibold text-muted small">Note</div>
+      <div>{{ dept.note }}</div>
+    </li>
+    {% endif %}
+
+  </ul>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              </div>
+          </div>
+        </div>
+      </div>
     {% empty %}
       <div class="col-12">
         <div class="alert alert-info">No debts yet. Use “New debt” to add one.</div>
@@ -126,6 +209,9 @@
     </div>
   </div>
 </div>
+
+
+
 
 
 </body>
