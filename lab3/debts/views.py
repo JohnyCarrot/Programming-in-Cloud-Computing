@@ -69,3 +69,40 @@ def run_migrations(request):
     from django.core.management import call_command
     call_command("migrate", interactive=False)
     return HttpResponse("Migrácie boli spustené.")
+
+import os
+from django.conf import settings
+from django.http import HttpResponse
+
+def download_data(request):
+    def _vypis_strom(cesta, uroven=0):
+        """Rekurzívne vráti HTML zoznam súborov a priečinkov."""
+        html = []
+        prefix = "&nbsp;" * (uroven * 4)  # odsadenie pre čitateľnosť
+
+        try:
+            polozky = sorted(os.listdir(cesta))
+        except PermissionError:
+            return [f"{prefix}<i>[nedostupné oprávnenia]</i><br>"]
+
+        for nazov in polozky:
+            # preskočíme skryté priečinky a súbory
+            if nazov.startswith("."):
+                continue
+
+            plna_cesta = os.path.join(cesta, nazov)
+            if os.path.isdir(plna_cesta):
+                html.append(f"{prefix}<strong>{nazov}/</strong><br>")
+                html.extend(_vypis_strom(plna_cesta, uroven + 1))
+            else:
+                html.append(f"{prefix}{nazov}<br>")
+
+        return html
+    """Vracia jednoduchý HTML výpis všetkých súborov projektu ako strom."""
+    base_dir = settings.BASE_DIR
+    html = [f"<h2>Súbory v {base_dir}</h2>", "<pre>"]
+
+    html.extend(_vypis_strom(base_dir))
+
+    html.append("</pre>")
+    return HttpResponse("\n".join(html))

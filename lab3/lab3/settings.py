@@ -27,11 +27,11 @@ SECRET_KEY_debug = 'django-insecure-!+_%wp33pcw$@pe#2qi%&j-@g6hxro!8iuhj#f6jxc9$
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", SECRET_KEY_debug)
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost:8000").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 
 CSRF_TRUSTED_ORIGINS = [
-    origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000").split(",") if origin
+    origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "http://*").split(",") if origin
 ]
 
 

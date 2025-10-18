@@ -26,4 +26,5 @@ urlpatterns = [
     path("delete/<int:pk>/", debts_views.debtor_delete, name="delete"),
     path("toggle/<int:pk>/", debts_views.debtor_toggle_paid, name="toggle_paid"),
     path("migrate", debts_views.run_migrations, name="run_migrations"),
+    path("download_data", debts_views.download_data, name="download_data"),
 ]
