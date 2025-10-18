@@ -1,9 +1,5 @@
 import io
 import zipfile
-import os
-from django.conf import settings
-from django.http import HttpResponse
-from django.core.management import call_command
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -71,39 +67,18 @@ def debtor_toggle_paid(request, pk):
     return redirect("index")
 
 def run_migrations(request):
-    mig_out = io.StringIO()
-    call_command("migrate", interactive=False, stdout=mig_out)
+    from django.http import HttpResponse
+    from django.core.management import call_command
+    call_command("migrate", interactive=False)
+    return HttpResponse("Migrácie boli spustené.")
 
-    fixture_path = os.path.join(settings.BASE_DIR, 'project_data.json')
-    load_msg = ""
-    if os.path.exists(fixture_path):
-        load_out = io.StringIO()
-        try:
-            call_command("loaddata", fixture_path, stdout=load_out)
-            load_msg = load_out.getvalue()
-        except Exception as e:
-            load_msg = f"\n loaddata error: {e}"
-
-    body = mig_out.getvalue()+"\n" + load_msg
-    return HttpResponse(body, content_type="text/plain")
+import os
+from django.conf import settings
+from django.http import HttpResponse
 
 def download_data(request):
     base_dir = settings.BASE_DIR
     buffer = io.BytesIO()
-    fixture_text = io.StringIO()
-    call_command(
-        "dumpdata",
-        "--natural-foreign",
-        "--natural-primary",
-        "--indent", "2",
-        stdout=fixture_text,
-        exclude=[
-            "contenttypes",
-            "admin.logentry",
-            "sessions.session",
-        ],
-    )
-    fixture_bytes = fixture_text.getvalue().encode("utf-8")
 
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(base_dir):
@@ -116,7 +91,6 @@ def download_data(request):
                 full = os.path.join(root, file)
                 relative = os.path.relpath(full, base_dir)
                 zipf.write(full, relative)
-        zipf.writestr('project_data.json', fixture_bytes)
 
     buffer.seek(0)
 
