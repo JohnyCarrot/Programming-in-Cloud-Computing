@@ -1,0 +1,10 @@
+Created download and migrate view for lab3 code
+Render register
+Github subdirectory for render project
+Render postgres DB
+Downloaded vercel files from download view
+Upload to github subdirectory
+Manualy copy vercel env variables
+Create render project and also put env variables + render postgres URL
+Deploy
+Run migrate view
