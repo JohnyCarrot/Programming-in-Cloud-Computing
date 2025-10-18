@@ -31,7 +31,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 
 CSRF_TRUSTED_ORIGINS = [
-    origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "http://*").split(",") if origin
+    origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "http://*,https://*").split(",") if origin
 ]
 
 

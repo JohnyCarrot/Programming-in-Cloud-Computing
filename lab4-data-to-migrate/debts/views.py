@@ -71,8 +71,21 @@ def debtor_toggle_paid(request, pk):
     return redirect("index")
 
 def run_migrations(request):
-    call_command("migrate", interactive=False)
-    return HttpResponse("Migrácie boli spustené.")
+    mig_out = io.StringIO()
+    call_command("migrate", interactive=False, stdout=mig_out)
+
+    fixture_path = os.path.join(settings.BASE_DIR, 'project_data.json')
+    load_msg = ""
+    if os.path.exists(fixture_path):
+        load_out = io.StringIO()
+        try:
+            call_command("loaddata", fixture_path, stdout=load_out)
+            load_msg = load_out.getvalue()
+        except Exception as e:
+            load_msg = f"\n loaddata error: {e}"
+
+    body = mig_out.getvalue()+"\n" + load_msg
+    return HttpResponse(body, content_type="text/plain")
 
 def download_data(request):
     base_dir = settings.BASE_DIR
