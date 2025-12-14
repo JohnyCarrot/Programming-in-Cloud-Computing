@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What to eat today</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+  <div class="container">
+    <div class="row min-vh-100 justify-content-center align-items-center">
+      <div class="col-12 col-md-9 col-lg-7">
+
+        <div class="card shadow-sm">
+          <div class="card-body p-4 p-md-5 text-center">
+
+            <h1 class="h3 mb-2">What to eat today</h1>
+
+            <div class="text-start mx-auto" style="max-width: 520px;">
+              <div class="fw-semibold mb-2">Filters</div>
+
+              <div id="tagsLoading" class="small text-muted mb-2">Loading tags...</div>
+              <div id="tagsError" class="small text-danger mb-2 d-none">Failed to load tags.</div>
+
+              <div class="mb-3">
+                <div class="form-check form-check-inline d-none" data-tag-slot="0">
+                  <input class="form-check-input" type="checkbox" id="tag0">
+                  <label class="form-check-label" for="tag0">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="1">
+                  <input class="form-check-input" type="checkbox" id="tag1">
+                  <label class="form-check-label" for="tag1">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="2">
+                  <input class="form-check-input" type="checkbox" id="tag2">
+                  <label class="form-check-label" for="tag2">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="3">
+                  <input class="form-check-input" type="checkbox" id="tag3">
+                  <label class="form-check-label" for="tag3">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="4">
+                  <input class="form-check-input" type="checkbox" id="tag4">
+                  <label class="form-check-label" for="tag4">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="5">
+                  <input class="form-check-input" type="checkbox" id="tag5">
+                  <label class="form-check-label" for="tag5">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="6">
+                  <input class="form-check-input" type="checkbox" id="tag6">
+                  <label class="form-check-label" for="tag6">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="7">
+                  <input class="form-check-input" type="checkbox" id="tag7">
+                  <label class="form-check-label" for="tag7">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="8">
+                  <input class="form-check-input" type="checkbox" id="tag8">
+                  <label class="form-check-label" for="tag8">tag</label>
+                </div>
+                <div class="form-check form-check-inline d-none" data-tag-slot="9">
+                  <input class="form-check-input" type="checkbox" id="tag9">
+                  <label class="form-check-label" for="tag9">tag</label>
+                </div>
+              </div>
+            </div>
+
+            <button id="btnPick" class="btn btn-primary btn-lg px-4">
+              Pick a meal
+            </button>
+
+            <div id="status" class="small text-muted mt-3"></div>
+
+            <div id="resultBox" class="mt-4 d-none">
+              <div class="alert alert-success mb-3" role="alert">
+                <div class="fw-semibold">Your meal:</div>
+                <div id="mealName" class="fs-4"></div>
+              </div>
+
+              <div class="mb-2">
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="0">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="1">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="2">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="3">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="4">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="5">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="6">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="7">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="8">tag</span>
+                <span class="badge text-bg-secondary me-1 mb-1 d-none" data-badge-slot="9">tag</span>
+              </div>
+
+              <div class="text-muted small">
+                Press again if you disagree with the outcome.
+              </div>
+            </div>
+
+            <div id="errorBox" class="mt-4 d-none">
+              <div class="alert alert-danger mb-0" role="alert">
+                <div class="fw-semibold">Request failed</div>
+                <div id="errorText" class="small mt-1"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    const MEAL_PICKER_URL = "{{ MEAL_PICKER_URL|escapejs }}";
+
+    const btnPick = document.getElementById("btnPick");
+    const statusEl = document.getElementById("status");
+
+    const resultBox = document.getElementById("resultBox");
+    const mealName = document.getElementById("mealName");
+
+    const errorBox = document.getElementById("errorBox");
+    const errorText = document.getElementById("errorText");
+
+    const tagsLoading = document.getElementById("tagsLoading");
+    const tagsError = document.getElementById("tagsError");
+
+    const tagSlots = Array.from(document.querySelectorAll("[data-tag-slot]"));
+    const badgeSlots = Array.from(document.querySelectorAll("[data-badge-slot]"));
+
+    let loadedTags = [];
+    let tagToSlotIndex = {};
+
+    function baseUrl() {
+      return MEAL_PICKER_URL.replace(/\/$/, "");
+    }
+
+    function showError(message) {
+      resultBox.classList.add("d-none");
+      errorBox.classList.remove("d-none");
+      errorText.textContent = message || "Unknown error.";
+    }
+
+    function hideAllBadges() {
+      for (const b of badgeSlots) b.classList.add("d-none");
+    }
+
+    function showBadges(tags) {
+      hideAllBadges();
+      if (!Array.isArray(tags)) return;
+
+      for (const t of tags) {
+        const idx = tagToSlotIndex[t];
+        if (idx === undefined) continue;
+        const badge = badgeSlots[idx];
+        if (badge) badge.classList.remove("d-none");
+      }
+    }
+
+    function showResult(meal) {
+      errorBox.classList.add("d-none");
+      resultBox.classList.remove("d-none");
+
+      mealName.textContent = (meal && meal.name) ? meal.name : "(unknown meal)";
+      showBadges(meal && meal.tags ? meal.tags : []);
+    }
+
+    function getSelectedTags() {
+      const selected = [];
+      for (const slot of tagSlots) {
+        if (slot.classList.contains("d-none")) continue;
+        const input = slot.querySelector("input");
+        if (input && input.checked && input.value) selected.push(input.value);
+      }
+      return selected;
+    }
+
+    async function loadTags() {
+      tagsError.classList.add("d-none");
+      tagsLoading.classList.remove("d-none");
+
+      try {
+        const res = await fetch(baseUrl() + "/api/tags/", { method: "GET" });
+        const data = await res.json();
+
+        if (!res.ok || !Array.isArray(data)) {
+          throw new Error("Invalid tags response.");
+        }
+
+        loadedTags = data;
+        tagToSlotIndex = {};
+
+        for (let i = 0; i < tagSlots.length; i++) {
+          const slot = tagSlots[i];
+          const tag = loadedTags[i];
+
+          if (!tag) {
+            slot.classList.add("d-none");
+            continue;
+          }
+
+          tagToSlotIndex[tag] = i;
+
+          const input = slot.querySelector("input");
+          const label = slot.querySelector("label");
+
+          input.value = tag;
+          input.checked = false;
+          label.textContent = tag;
+
+          slot.classList.remove("d-none");
+
+          if (badgeSlots[i]) {
+            badgeSlots[i].textContent = tag;
+          }
+        }
+      } catch (e) {
+        tagsError.classList.remove("d-none");
+      } finally {
+        tagsLoading.classList.add("d-none");
+      }
+    }
+
+    btnPick.addEventListener("click", async () => {
+      btnPick.disabled = true;
+      statusEl.textContent = "Picking...";
+      errorBox.classList.add("d-none");
+
+      try {
+        const selectedTags = getSelectedTags();
+        const url = new URL(baseUrl() + "/api/suggest/");
+        for (const t of selectedTags) url.searchParams.append("tag", t);
+
+        const res = await fetch(url.toString(), { method: "GET" });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data && data.error ? data.error : "Request failed.");
+        } else {
+          showResult(data);
+        }
+      } catch (e) {
+        showError("Network error.");
+      } finally {
+        statusEl.textContent = "";
+        btnPick.disabled = false;
+      }
+    });
+
+
+    document.addEventListener("DOMContentLoaded", loadTags);
+  </script>
+</body>
+</html>
