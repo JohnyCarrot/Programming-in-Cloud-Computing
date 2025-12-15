@@ -1,0 +1,177 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: whattoeat
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cryptopick
+  namespace: whattoeat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cryptopick
+  template:
+    metadata:
+      labels:
+        app: cryptopick
+    spec:
+      containers:
+        - name: cryptopick
+          image: cryptopick:1.0
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cryptopick
+  namespace: whattoeat
+spec:
+  selector:
+    app: cryptopick
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meal-picker
+  namespace: whattoeat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: meal-picker
+  template:
+    metadata:
+      labels:
+        app: meal-picker
+    spec:
+      containers:
+        - name: meal-picker
+          image: meal-picker:1.0
+          ports:
+            - containerPort: 8000
+          env:
+            - name: CRYPTOPICK_URL
+              value: "http://cryptopick:8000"
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meal-picker
+  namespace: whattoeat
+spec:
+  selector:
+    app: meal-picker
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whattoeat
+  namespace: whattoeat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whattoeat
+  template:
+    metadata:
+      labels:
+        app: whattoeat
+    spec:
+      containers:
+        - name: whattoeat
+          image: whattoeat:1.0
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MEAL_PICKER_URL
+              value: "http://localhost"
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whattoeat
+  namespace: whattoeat
+spec:
+  selector:
+    app: whattoeat
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whattoeat-ingress
+  namespace: whattoeat
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: meal-picker
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: whattoeat
+                port:
+                  number: 8000
